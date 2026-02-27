@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-pip install -r backend/requirements.txt
+pip install -r requirements.txt
 echo "Pre-downloading embedding model..."
 python -c "
 from langchain_huggingface import HuggingFaceEmbeddings
