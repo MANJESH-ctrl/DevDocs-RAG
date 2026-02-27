@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+cd backend
 pip install -r requirements.txt
 echo "Pre-downloading embedding model..."
 python -c "
@@ -9,5 +10,5 @@ HuggingFaceEmbeddings(
     model_kwargs={'device': 'cpu'},
     encode_kwargs={'normalize_embeddings': True}
 )
-print('Done.')
+print('Model cached successfully.')
 "
