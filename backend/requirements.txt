@@ -1,0 +1,17 @@
+fastapi
+uvicorn[standard]
+python-multipart
+python-dotenv
+pinecone-client
+pinecone-text
+langchain
+langchain-community
+langchain-core
+langchain-text-splitters
+langchain-groq
+fastembed
+tiktoken
+unstructured[pdf]
+pdfminer.six
+pdf2image
+pillow
