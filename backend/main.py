@@ -137,3 +137,10 @@ def chat_stream(session_id: str, req: ChatRequest):
         s["history"].append({"role": "assistant",  "content": full_answer})
 
     return StreamingResponse(generate(), media_type="text/plain")
+
+
+if __name__ == "__main__":
+    import uvicorn
+    import os
+    port = int(os.environ.get("PORT", 10000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port)    
