@@ -1,4 +1,3 @@
-# backend/ingestion_utils.py
 import os
 from uuid import uuid4
 from typing import List
@@ -9,7 +8,7 @@ from langchain_text_splitters import (
     MarkdownHeaderTextSplitter,
     RecursiveCharacterTextSplitter,
 )
-from langchain_community.embeddings.fastembed import FastEmbedEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from pinecone import Pinecone, ServerlessSpec
 from pinecone_text.sparse import BM25Encoder
 import tiktoken
@@ -29,15 +28,16 @@ from config import (
 _embeddings = None
 _pc_index   = None
 
-# keep BM25 per session in memory for this process
+# keeping BM25 per session in memory for this process
 _bm25_store = {}   # session_id -> BM25Encoder
-
 
 def get_embeddings():
     global _embeddings
     if _embeddings is None:
-        _embeddings = FastEmbedEmbeddings(
-            model_name=EMBEDDING_MODEL
+        _embeddings = HuggingFaceEmbeddings(
+            model_name=EMBEDDING_MODEL,
+            model_kwargs={"device": "cpu"},
+            encode_kwargs={"normalize_embeddings": True}
         )
     return _embeddings
 
@@ -62,13 +62,12 @@ def pdf_to_markdown(filepath: str) -> str:
     print(f"[INGEST] Converting: {os.path.basename(filepath)}")
     elements = partition_pdf(
         filename=filepath,
-        strategy="fast",          # optimized for speed
+        strategy="fast",         
         infer_table_structure=False,
         languages=["eng"],
     )
     md_text = ""
     for el in elements:
-        # prefer text_as_html if available
         if hasattr(el.metadata, "text_as_html") and el.metadata.text_as_html:
             md_text += f"\n{el.metadata.text_as_html}"
         elif el.text:
@@ -116,7 +115,7 @@ def hierarchical_split(documents: List[Document]) -> List[Document]:
             else:
                 final_chunks.append(Document(page_content=content, metadata=metadata))
 
-    # remove tiny/empty chunks
+    # removing tiny/empty chunks
     filtered = [
         c
         for c in final_chunks

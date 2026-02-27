@@ -1,7 +1,7 @@
 # backend/query_utils.py
 from typing import List
 
-from langchain_community.embeddings.fastembed import FastEmbedEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_groq import ChatGroq
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
@@ -30,8 +30,10 @@ _pc_index   = None
 def get_embeddings():
     global _embeddings
     if _embeddings is None:
-        _embeddings = FastEmbedEmbeddings(
-            model_name=EMBEDDING_MODEL
+        _embeddings = HuggingFaceEmbeddings(
+            model_name=EMBEDDING_MODEL,
+            model_kwargs={"device": "cpu"},
+            encode_kwargs={"normalize_embeddings": True}
         )
     return _embeddings
 
@@ -112,7 +114,7 @@ Answer:"""
 
 
 def get_rag_chain(session_id: str, history_text: str = "None"):
-    prompt = PromptTemplate.from_template(TEMPLATE)   # TEMPLATE now has {history}
+    prompt = PromptTemplate.from_template(TEMPLATE)  
 
     def _retrieve(q: str) -> str:
         docs = hybrid_retriever(q, session_id)

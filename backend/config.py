@@ -24,7 +24,6 @@ BASE_DIR  = os.path.dirname(__file__)
 UPLOAD_DIR = os.path.join(BASE_DIR, "uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-# We no longer persist BM25 to disk for demo; kept in memory per process.
 
 # --- Chunking / retrieval params ---
 CHUNK_SIZE    = 500

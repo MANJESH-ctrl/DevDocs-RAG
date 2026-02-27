@@ -158,8 +158,8 @@ defaults = {
     "session_id":   None,
     "doc_status":   None,
     "doc_name":     None,
-    "messages":     [],       # [{role, content, sources}]
-    "chat_history": [],       # [{doc_name, session_id, preview}] across sessions
+    "messages":     [],      
+    "chat_history": [],       
 }
 for k, v in defaults.items():
     if k not in st.session_state:

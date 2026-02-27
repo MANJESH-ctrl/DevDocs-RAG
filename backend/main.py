@@ -116,7 +116,7 @@ def chat_stream(session_id: str, req: ChatRequest):
 
     chain = get_rag_chain(session_id, history_text)   # pass history
     docs  = hybrid_retriever(req.question, session_id)
-    sources = [...]   # same as before
+    sources = [...]   
 
     def generate():
         import json

@@ -9,7 +9,8 @@ langchain-community
 langchain-core
 langchain-text-splitters
 langchain-groq
-fastembed
+langchain-huggingface    
+sentence-transformers    
 tiktoken
 unstructured[pdf]
 pdfminer.six
