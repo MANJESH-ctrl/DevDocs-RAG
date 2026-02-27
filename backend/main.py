@@ -13,9 +13,16 @@ from ingestion_utils import ingest_document
 from query_utils import get_rag_chain, hybrid_retriever
 
 app = FastAPI(title="DEV-DOCS RAG Backend")
-
 # Simple in-memory session store: session_id -> dict
 sessions: Dict[str, Dict[str, Any]] = {}
+
+@app.get("/")
+def root():
+    return {"status": "ok", "service": "DEV-DOCS RAG Backend"}
+
+@app.get("/health")
+def health():
+    return {"status": "healthy"}
 
 
 class ChatRequest(BaseModel):
