@@ -2,13 +2,13 @@ import os
 from uuid import uuid4
 from typing import List
 
-from unstructured.partition.pdf import partition_pdf
+# from unstructured.partition.pdf import partition_pdf
 from langchain_core.documents import Document
-from langchain_text_splitters import MarkdownHeaderTextSplitter, RecursiveCharacterTextSplitter
+# from langchain_text_splitters import MarkdownHeaderTextSplitter, RecursiveCharacterTextSplitter
 # from langchain_huggingface import HuggingFaceEmbeddings
 # from pinecone import Pinecone, ServerlessSpec
 # from pinecone_text.sparse import BM25Encoder
-import tiktoken
+# import tiktoken
 
 from config import (
     PINECONE_API_KEY,
@@ -54,6 +54,7 @@ def get_index():
 
 
 def pdf_to_markdown(filepath: str) -> str:
+    from unstructured.partition.pdf import partition_pdf  
     elements = partition_pdf(
         filename=filepath,
         strategy="fast",
@@ -70,6 +71,8 @@ def pdf_to_markdown(filepath: str) -> str:
 
 
 def hierarchical_split(documents: List[Document]) -> List[Document]:
+    from langchain_text_splitters import MarkdownHeaderTextSplitter, RecursiveCharacterTextSplitter
+    import tiktoken
     headers_to_split_on = [
         ("#", "Header 1"),
         ("##", "Header 2"),
@@ -111,8 +114,9 @@ def hierarchical_split(documents: List[Document]) -> List[Document]:
         if c.page_content and isinstance(c.page_content, str) and len(c.page_content.strip()) > 50
     ]
 
-from pinecone_text.sparse import BM25Encoder
+
 def ingest_document(file_path: str, session_id: str):
+    from pinecone_text.sparse import BM25Encoder
     from config import UPLOAD_DIR  # local import to avoid cycles
 
     md_text = pdf_to_markdown(file_path)
@@ -146,7 +150,7 @@ def ingest_document(file_path: str, session_id: str):
         index.upsert(vectors=batch, namespace=session_id)
 
 
-def get_bm25_for_session(session_id: str) -> BM25Encoder:
+def get_bm25_for_session(session_id: str):
     if session_id not in _bm25_store:
         raise ValueError(f"BM25 not found for session {session_id}")
     return _bm25_store[session_id]

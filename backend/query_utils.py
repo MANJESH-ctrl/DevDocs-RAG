@@ -2,12 +2,12 @@ from typing import List
 
 # from langchain_huggingface import HuggingFaceEmbeddings
 # from langchain_groq import ChatGroq
-from langchain_core.prompts import PromptTemplate
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnablePassthrough
+# from langchain_core.prompts import PromptTemplate
+# from langchain_core.output_parsers import StrOutputParser
+# from langchain_core.runnables import RunnablePassthrough
 from langchain_core.documents import Document
 # from pinecone import Pinecone
-from pinecone_text.sparse import BM25Encoder
+# from pinecone_text.sparse import BM25Encoder
 
 from config import (
     PINECONE_API_KEY,
@@ -55,6 +55,7 @@ def get_index():
 
 
 def hybrid_retriever(query: str, session_id: str, top_k: int = TOP_K, final_k: int = FINAL_K) -> List[Document]:
+    from pinecone_text.sparse import BM25Encoder
     embeddings = get_embeddings()
     bm25: BM25Encoder = get_bm25_for_session(session_id)
     index = get_index()
@@ -104,6 +105,9 @@ Answer:"""
 
 
 def get_rag_chain(session_id: str):
+    from langchain_core.prompts import PromptTemplate
+    from langchain_core.output_parsers import StrOutputParser
+    from langchain_core.runnables import RunnablePassthrough
     prompt = PromptTemplate.from_template(TEMPLATE)
 
     def _retrieve(q: str) -> str:
