@@ -1,4 +1,3 @@
-# frontend/app.py
 import time
 import json
 import requests
@@ -6,9 +5,6 @@ import streamlit as st
 
 API = st.secrets.get("API_URL", "http://localhost:8000")
 
-# ─────────────────────────────────────────
-# Page config
-# ─────────────────────────────────────────
 st.set_page_config(
     page_title="DEV-DOCS RAG",
     page_icon="🧠",
@@ -17,23 +13,16 @@ st.set_page_config(
 )
 
 # ─────────────────────────────────────────
-# Custom CSS — ChatGPT-style dark theme
+# Custom CSS
 # ─────────────────────────────────────────
 st.markdown("""
 <style>
-/* Overall background */
 .stApp { background-color: #212121; color: #ececec; }
-
-/* Sidebar */
 [data-testid="stSidebar"] {
     background-color: #171717;
     border-right: 1px solid #2f2f2f;
 }
-
-/* Hide default streamlit header/footer */
 #MainMenu, footer, header { visibility: hidden; }
-
-/* Chat messages */
 .user-bubble {
     background-color: #2f2f2f;
     border-radius: 18px 18px 4px 18px;
@@ -53,8 +42,6 @@ st.markdown("""
     line-height: 1.5;
     border: 1px solid #2f2f2f;
 }
-
-/* Citation cards */
 .citation-card {
     background-color: #2a2a2a;
     border: 1px solid #3a3a3a;
@@ -70,17 +57,6 @@ st.markdown("""
     font-weight: 600;
     font-size: 12px;
 }
-
-/* Upload area */
-.upload-area {
-    border: 2px dashed #3a3a3a;
-    border-radius: 12px;
-    padding: 20px;
-    text-align: center;
-    background-color: #1a1a1a;
-}
-
-/* Status badge */
 .status-ready {
     background-color: #0d3320;
     color: #10a37f;
@@ -97,8 +73,6 @@ st.markdown("""
     font-size: 12px;
     font-weight: 600;
 }
-
-/* Scrollable chat history in sidebar */
 .history-item {
     background-color: #2a2a2a;
     border-radius: 8px;
@@ -106,22 +80,16 @@ st.markdown("""
     margin: 4px 0;
     font-size: 13px;
     color: #cccccc;
-    cursor: pointer;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
-.history-item:hover { background-color: #333333; }
-
-/* Input box */
 [data-testid="stChatInput"] textarea {
     background-color: #2f2f2f !important;
     border: 1px solid #3a3a3a !important;
     border-radius: 12px !important;
     color: #ececec !important;
 }
-
-/* Buttons */
 .stButton > button {
     background-color: #2f2f2f;
     color: #ececec;
@@ -134,8 +102,6 @@ st.markdown("""
     border-color: #10a37f;
     color: white;
 }
-
-/* Title */
 .app-title {
     font-size: 22px;
     font-weight: 700;
@@ -158,18 +124,17 @@ defaults = {
     "session_id":   None,
     "doc_status":   None,
     "doc_name":     None,
-    "messages":     [],      
-    "chat_history": [],       
+    "messages":     [],
+    "chat_history": [],
 }
 for k, v in defaults.items():
     if k not in st.session_state:
         st.session_state[k] = v
 
 # ─────────────────────────────────────────
-# Helper — stream response from API
+# Helpers
 # ─────────────────────────────────────────
 def stream_answer(session_id: str, question: str):
-    """Generator: yields (token, sources) where sources is None until last chunk."""
     sources = []
     buffer  = ""
     with requests.post(
@@ -182,7 +147,6 @@ def stream_answer(session_id: str, question: str):
             if not chunk:
                 continue
             buffer += chunk
-            # Extract sources metadata sent as first chunk
             if "__SOURCES__" in buffer:
                 parts = buffer.split("__SOURCES__")
                 if len(parts) >= 3:
@@ -190,17 +154,14 @@ def stream_answer(session_id: str, question: str):
                         sources = json.loads(parts[1])
                     except Exception:
                         sources = []
-                    buffer = parts[2]  # remainder is actual answer tokens
+                    buffer = parts[2]
                 continue
             yield buffer, sources
             buffer = ""
-    # Final flush
     if buffer:
         yield buffer, sources
 
-# ─────────────────────────────────────────
-# Helper — render citations
-# ─────────────────────────────────────────
+
 def render_citations(sources: list):
     if not sources:
         return
@@ -224,7 +185,6 @@ with st.sidebar:
     st.markdown('<div class="app-subtitle">Chat with your developer documentation</div>', unsafe_allow_html=True)
     st.divider()
 
-    # ── Upload ──
     st.markdown("#### 📄 Upload Document")
     uploaded_file = st.file_uploader(
         "Choose a PDF", type="pdf", label_visibility="collapsed"
@@ -249,7 +209,6 @@ with st.sidebar:
 
     st.divider()
 
-    # ── Current doc status ──
     st.markdown("#### 📋 Current Document")
     if st.session_state.doc_name:
         st.markdown(f"**📁 {st.session_state.doc_name}**")
@@ -266,7 +225,6 @@ with st.sidebar:
 
     st.divider()
 
-    # ── Chat history ──
     st.markdown("#### 🕘 Chat History")
     if not st.session_state.messages:
         st.caption("No messages yet.")
@@ -278,7 +236,6 @@ with st.sidebar:
 
     st.divider()
 
-    # ── Action buttons ──
     col1, col2 = st.columns(2)
     with col1:
         if st.button("🗑️ Clear Chat", use_container_width=True):
@@ -290,7 +247,6 @@ with st.sidebar:
                 st.session_state[k] = v
             st.rerun()
 
-    # ── Download chat ──
     if st.session_state.messages:
         chat_export = "\n\n".join(
             f"{'You' if m['role'] == 'user' else 'Assistant'}: {m['content']}"
@@ -305,10 +261,8 @@ with st.sidebar:
         )
 
 # ─────────────────────────────────────────
-# MAIN CHAT AREA
+# MAIN AREA
 # ─────────────────────────────────────────
-
-# ── Processing spinner (polls until ready) ──
 if st.session_state.doc_status == "processing":
     st.markdown("### ⚙️ Processing your document...")
     progress_bar = st.progress(0)
@@ -318,7 +272,6 @@ if st.session_state.doc_status == "processing":
         resp   = requests.get(f"{API}/status/{st.session_state.session_id}")
         result = resp.json()
         status = result.get("status")
-
         if status == "ready":
             st.session_state.doc_status = "ready"
             progress_bar.progress(100)
@@ -332,57 +285,39 @@ if st.session_state.doc_status == "processing":
             break
         else:
             elapsed += 3
-            # Fake progress to give user feedback
             fake_progress = min(int((elapsed / 30) * 90), 90)
             progress_bar.progress(fake_progress)
             status_text.info(f"⏳ Still processing... ({elapsed}s elapsed)")
             time.sleep(3)
 
-# ── No doc loaded ──
 elif st.session_state.doc_status is None:
     st.markdown("""
     <div style='text-align:center; padding: 80px 20px;'>
         <div style='font-size:64px'>🧠</div>
         <h2 style='color:#ececec; margin-top:16px'>DEV-DOCS RAG</h2>
         <p style='color:#666; font-size:16px'>Upload a PDF from the sidebar to start chatting</p>
-        <p style='color:#444; font-size:13px'>Powered by Pinecone · Groq · FastEmbed</p>
+        <p style='color:#444; font-size:13px'>Powered by Pinecone · Groq · HuggingFace</p>
     </div>
     """, unsafe_allow_html=True)
 
-# ── Failed ──
 elif st.session_state.doc_status == "failed":
     st.error("Document processing failed. Upload a new document from the sidebar.")
 
-# ── Ready — show chat ──
 elif st.session_state.doc_status == "ready":
-
-    # Render existing messages
     for msg in st.session_state.messages:
         if msg["role"] == "user":
-            st.markdown(
-                f'<div class="user-bubble">{msg["content"]}</div>',
-                unsafe_allow_html=True
-            )
+            st.markdown(f'<div class="user-bubble">{msg["content"]}</div>', unsafe_allow_html=True)
         else:
-            st.markdown(
-                f'<div class="assistant-bubble">{msg["content"]}</div>',
-                unsafe_allow_html=True
-            )
+            st.markdown(f'<div class="assistant-bubble">{msg["content"]}</div>', unsafe_allow_html=True)
             if msg.get("sources"):
                 render_citations(msg["sources"])
 
-    # Chat input
     if prompt := st.chat_input("Ask anything about your document..."):
-        # Show user message immediately
-        st.markdown(
-            f'<div class="user-bubble">{prompt}</div>',
-            unsafe_allow_html=True
-        )
+        st.markdown(f'<div class="user-bubble">{prompt}</div>', unsafe_allow_html=True)
         st.session_state.messages.append({"role": "user", "content": prompt, "sources": []})
 
-        # Stream assistant response
         answer_placeholder = st.empty()
-        full_answer = ""
+        full_answer  = ""
         final_sources = []
 
         with st.spinner(""):
@@ -394,14 +329,12 @@ elif st.session_state.doc_status == "ready":
                     unsafe_allow_html=True
                 )
 
-        # Final render without cursor
         answer_placeholder.markdown(
             f'<div class="assistant-bubble">{full_answer}</div>',
             unsafe_allow_html=True
         )
         render_citations(final_sources)
 
-        # Save to session
         st.session_state.messages.append({
             "role":    "assistant",
             "content": full_answer,
