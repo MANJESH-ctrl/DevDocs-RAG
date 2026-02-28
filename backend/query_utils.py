@@ -1,12 +1,12 @@
 from typing import List
 
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_groq import ChatGroq
+# from langchain_huggingface import HuggingFaceEmbeddings
+# from langchain_groq import ChatGroq
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.documents import Document
-from pinecone import Pinecone
+# from pinecone import Pinecone
 from pinecone_text.sparse import BM25Encoder
 
 from config import (
@@ -28,6 +28,7 @@ _pc_index   = None
 def get_embeddings():
     global _embeddings
     if _embeddings is None:
+        from langchain_huggingface import HuggingFaceEmbeddings
         _embeddings = HuggingFaceEmbeddings(
             model_name=EMBEDDING_MODEL,
             model_kwargs={"device": "cpu"},
@@ -39,6 +40,7 @@ def get_embeddings():
 def get_llm():
     global _llm
     if _llm is None:
+        from langchain_groq import ChatGroq
         _llm = ChatGroq(model=LLM_MODEL, temperature=0, groq_api_key=GROQ_API_KEY)
     return _llm
 
@@ -46,6 +48,7 @@ def get_llm():
 def get_index():
     global _pc_index
     if _pc_index is None:
+        from pinecone import Pinecone
         pc = Pinecone(api_key=PINECONE_API_KEY)
         _pc_index = pc.Index(INDEX_NAME)
     return _pc_index

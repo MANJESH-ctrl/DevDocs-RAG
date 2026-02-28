@@ -5,9 +5,9 @@ from typing import List
 from unstructured.partition.pdf import partition_pdf
 from langchain_core.documents import Document
 from langchain_text_splitters import MarkdownHeaderTextSplitter, RecursiveCharacterTextSplitter
-from langchain_huggingface import HuggingFaceEmbeddings
-from pinecone import Pinecone, ServerlessSpec
-from pinecone_text.sparse import BM25Encoder
+# from langchain_huggingface import HuggingFaceEmbeddings
+# from pinecone import Pinecone, ServerlessSpec
+# from pinecone_text.sparse import BM25Encoder
 import tiktoken
 
 from config import (
@@ -28,6 +28,7 @@ _bm25_store = {}         # session_id -> BM25Encoder
 def get_embeddings():
     global _embeddings
     if _embeddings is None:
+        from langchain_huggingface import HuggingFaceEmbeddings
         _embeddings = HuggingFaceEmbeddings(
             model_name=EMBEDDING_MODEL,
             model_kwargs={"device": "cpu"},
@@ -39,6 +40,7 @@ def get_embeddings():
 def get_index():
     global _pc_index
     if _pc_index is None:
+        from pinecone import Pinecone, ServerlessSpec
         pc = Pinecone(api_key=PINECONE_API_KEY)
         if INDEX_NAME not in pc.list_indexes().names():
             pc.create_index(
@@ -109,7 +111,7 @@ def hierarchical_split(documents: List[Document]) -> List[Document]:
         if c.page_content and isinstance(c.page_content, str) and len(c.page_content.strip()) > 50
     ]
 
-
+from pinecone_text.sparse import BM25Encoder
 def ingest_document(file_path: str, session_id: str):
     from config import UPLOAD_DIR  # local import to avoid cycles
 

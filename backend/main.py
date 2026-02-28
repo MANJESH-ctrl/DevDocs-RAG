@@ -11,7 +11,7 @@ from config import UPLOAD_DIR
 from ingestion_utils import ingest_document
 from query_utils import get_rag_chain, hybrid_retriever
 
-app = FastAPI(title="DEV-DOCS RAG Backend")
+app = FastAPI(title="DEV-DOCS RAG")
 
 sessions: Dict[str, Dict[str, Any]] = {}
 
@@ -113,7 +113,7 @@ def chat_stream(session_id: str, req: ChatRequest):
     sources = []
     for doc in docs:
         source = doc.metadata.get("source_file", "unknown")
-        headers = " > ".join(v for k, v in doc.metadata.items if k.startswith("Header"))
+        headers = " > ".join(v for k, v in doc.metadata.items() if k.startswith("Header"))        
         sources.append(
             {
                 "source": source,
