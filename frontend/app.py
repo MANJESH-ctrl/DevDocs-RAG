@@ -4,7 +4,7 @@ import json
 import requests
 import streamlit as st
 
-API = "http://localhost:8000"
+API = st.secrets.get("API_URL", "http://localhost:8000")
 
 # ─────────────────────────────────────────
 # Page config
