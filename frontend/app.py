@@ -3,7 +3,10 @@ import json
 import requests
 import streamlit as st
 
-API = st.secrets.get("API_URL", "http://localhost:8000")
+try:
+    API = st.secrets["API_URL"]
+except Exception:
+    API = "http://localhost:8000"
 
 st.set_page_config(
     page_title="DEV-DOCS RAG",
@@ -13,17 +16,42 @@ st.set_page_config(
 )
 
 # ─────────────────────────────────────────
-# Custom CSS
+# Session state
 # ─────────────────────────────────────────
-st.markdown("""
+defaults = {
+    "session_id":    None,
+    "doc_status":    None,
+    "doc_name":      None,
+    "messages":      [],
+    "chat_history":  [],
+    "sidebar_open":  True,
+}
+for k, v in defaults.items():
+    if k not in st.session_state:
+        st.session_state[k] = v
+
+# ─────────────────────────────────────────
+# CSS — hide native collapse, style everything
+# ─────────────────────────────────────────
+sidebar_display = "flex" if st.session_state.sidebar_open else "none"
+
+st.markdown(f"""
 <style>
-.stApp { background-color: #212121; color: #ececec; }
-[data-testid="stSidebar"] {
+.stApp {{ background-color: #212121; color: #ececec; }}
+
+[data-testid="stSidebar"] {{
     background-color: #171717;
     border-right: 1px solid #2f2f2f;
-}
-#MainMenu, footer, header { visibility: hidden; }
-.user-bubble {
+    display: {sidebar_display} !important;
+}}
+
+/* Hide Streamlit's native collapse button */
+[data-testid="collapsedControl"] {{ display: none !important; }}
+button[kind="header"] {{ display: none !important; }}
+
+#MainMenu, footer, header {{ visibility: hidden; }}
+
+.user-bubble {{
     background-color: #2f2f2f;
     border-radius: 18px 18px 4px 18px;
     padding: 12px 16px;
@@ -31,8 +59,8 @@ st.markdown("""
     color: #ececec;
     font-size: 15px;
     line-height: 1.5;
-}
-.assistant-bubble {
+}}
+.assistant-bubble {{
     background-color: #1a1a1a;
     border-radius: 18px 18px 18px 4px;
     padding: 12px 16px;
@@ -41,8 +69,8 @@ st.markdown("""
     font-size: 15px;
     line-height: 1.5;
     border: 1px solid #2f2f2f;
-}
-.citation-card {
+}}
+.citation-card {{
     background-color: #2a2a2a;
     border: 1px solid #3a3a3a;
     border-left: 3px solid #10a37f;
@@ -51,29 +79,29 @@ st.markdown("""
     margin: 4px 0;
     font-size: 12px;
     color: #aaaaaa;
-}
-.citation-title {
+}}
+.citation-title {{
     color: #10a37f;
     font-weight: 600;
     font-size: 12px;
-}
-.status-ready {
+}}
+.status-ready {{
     background-color: #0d3320;
     color: #10a37f;
     padding: 4px 10px;
     border-radius: 20px;
     font-size: 12px;
     font-weight: 600;
-}
-.status-processing {
+}}
+.status-processing {{
     background-color: #2a2200;
     color: #f5a623;
     padding: 4px 10px;
     border-radius: 20px;
     font-size: 12px;
     font-weight: 600;
-}
-.history-item {
+}}
+.history-item {{
     background-color: #2a2a2a;
     border-radius: 8px;
     padding: 8px 10px;
@@ -83,53 +111,48 @@ st.markdown("""
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-[data-testid="stChatInput"] textarea {
+}}
+[data-testid="stChatInput"] textarea {{
     background-color: #2f2f2f !important;
     border: 1px solid #3a3a3a !important;
     border-radius: 12px !important;
     color: #ececec !important;
-}
-.stButton > button {
+}}
+.stButton > button {{
     background-color: #2f2f2f;
     color: #ececec;
     border: 1px solid #3a3a3a;
     border-radius: 8px;
     width: 100%;
-}
-.stButton > button:hover {
+}}
+.stButton > button:hover {{
     background-color: #10a37f;
     border-color: #10a37f;
     color: white;
-}
-.app-title {
-    font-size: 22px;
-    font-weight: 700;
-    color: #ececec;
-    letter-spacing: 0.5px;
-    margin-bottom: 4px;
-}
-.app-subtitle {
-    font-size: 12px;
-    color: #666;
-    margin-bottom: 20px;
-}
+}}
+.toggle-btn > button {{
+    background-color: #2f2f2f !important;
+    color: #ececec !important;
+    border: 1px solid #3a3a3a !important;
+    border-radius: 8px !important;
+    width: auto !important;
+    padding: 4px 12px !important;
+    font-size: 18px !important;
+}}
 </style>
 """, unsafe_allow_html=True)
 
 # ─────────────────────────────────────────
-# Session state init
+# Toggle button — always visible top-left
 # ─────────────────────────────────────────
-defaults = {
-    "session_id":   None,
-    "doc_status":   None,
-    "doc_name":     None,
-    "messages":     [],
-    "chat_history": [],
-}
-for k, v in defaults.items():
-    if k not in st.session_state:
-        st.session_state[k] = v
+toggle_col, _ = st.columns([1, 11])
+with toggle_col:
+    with st.container():
+        st.markdown('<div class="toggle-btn">', unsafe_allow_html=True)
+        if st.button("☰", key="sidebar_toggle"):
+            st.session_state.sidebar_open = not st.session_state.sidebar_open
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
 
 # ─────────────────────────────────────────
 # Helpers
@@ -181,8 +204,8 @@ def render_citations(sources: list):
 # SIDEBAR
 # ─────────────────────────────────────────
 with st.sidebar:
-    st.markdown('<div class="app-title">🧠 DEV-DOCS RAG</div>', unsafe_allow_html=True)
-    st.markdown('<div class="app-subtitle">Chat with your developer documentation</div>', unsafe_allow_html=True)
+    st.markdown("### 🧠 DEV-DOCS RAG")
+    st.caption("Chat with your developer documentation")
     st.divider()
 
     st.markdown("#### 📄 Upload Document")
@@ -292,7 +315,7 @@ if st.session_state.doc_status == "processing":
 
 elif st.session_state.doc_status is None:
     st.markdown("""
-    <div style='text-align:center; padding: 80px 20px;'>
+    <div style='text-align:center; padding: 60px 20px;'>
         <div style='font-size:64px'>🧠</div>
         <h2 style='color:#ececec; margin-top:16px'>DEV-DOCS RAG</h2>
         <p style='color:#666; font-size:16px'>Upload a PDF from the sidebar to start chatting</p>
@@ -317,7 +340,7 @@ elif st.session_state.doc_status == "ready":
         st.session_state.messages.append({"role": "user", "content": prompt, "sources": []})
 
         answer_placeholder = st.empty()
-        full_answer  = ""
+        full_answer   = ""
         final_sources = []
 
         with st.spinner(""):
