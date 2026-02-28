@@ -1,4 +1,3 @@
-# backend/query_utils.py
 from typing import List
 
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -21,7 +20,6 @@ from config import (
 )
 from ingestion_utils import get_bm25_for_session
 
-# ---------- singletons ----------
 _embeddings = None
 _llm        = None
 _pc_index   = None
@@ -33,7 +31,7 @@ def get_embeddings():
         _embeddings = HuggingFaceEmbeddings(
             model_name=EMBEDDING_MODEL,
             model_kwargs={"device": "cpu"},
-            encode_kwargs={"normalize_embeddings": True}
+            encode_kwargs={"normalize_embeddings": True},
         )
     return _embeddings
 
@@ -41,11 +39,7 @@ def get_embeddings():
 def get_llm():
     global _llm
     if _llm is None:
-        _llm = ChatGroq(
-            model=LLM_MODEL,
-            temperature=0,
-            groq_api_key=GROQ_API_KEY,
-        )
+        _llm = ChatGroq(model=LLM_MODEL, temperature=0, groq_api_key=GROQ_API_KEY)
     return _llm
 
 
@@ -57,10 +51,7 @@ def get_index():
     return _pc_index
 
 
-# ---------- hybrid retriever ----------
-def hybrid_retriever(
-    query: str, session_id: str, top_k: int = TOP_K, final_k: int = FINAL_K
-) -> List[Document]:
+def hybrid_retriever(query: str, session_id: str, top_k: int = TOP_K, final_k: int = FINAL_K) -> List[Document]:
     embeddings = get_embeddings()
     bm25: BM25Encoder = get_bm25_for_session(session_id)
     index = get_index()
@@ -79,26 +70,22 @@ def hybrid_retriever(
 
     docs: List[Document] = []
     for match in result["matches"]:
-        if match["score"] < 0.3:   # simple quality filter
+        if match["score"] < 0.3:
             continue
-        metadata = match["metadata"]
-        page_content = metadata.pop("text", "")
-        docs.append(Document(page_content=page_content, metadata=metadata))
+        meta = match["metadata"]
+        text = meta.pop("text", "")
+        docs.append(Document(page_content=text, metadata=meta))
 
     return docs[:final_k]
 
 
 def format_docs(docs: List[Document]) -> str:
-    formatted = []
+    parts = []
     for doc in docs:
         source = doc.metadata.get("source_file", "unknown")
-        headers = " > ".join(
-            v for k, v in doc.metadata.items() if k.startswith("Header")
-        )
-        formatted.append(
-            f"Source: {source} | {headers}\n{doc.page_content}"
-        )
-    return "\n\n---\n\n".join(formatted)
+        headers = " > ".join(v for k, v in doc.metadata.items() if k.startswith("Header"))
+        parts.append(f"Source: {source} | {headers}\n{doc.page_content}")
+    return "\n\n---\n\n".join(parts)
 
 
 TEMPLATE = """You are an expert on developer documentation.
@@ -113,8 +100,8 @@ Question: {question}
 Answer:"""
 
 
-def get_rag_chain(session_id: str, history_text: str = "None"):
-    prompt = PromptTemplate.from_template(TEMPLATE)  
+def get_rag_chain(session_id: str):
+    prompt = PromptTemplate.from_template(TEMPLATE)
 
     def _retrieve(q: str) -> str:
         docs = hybrid_retriever(q, session_id)
@@ -122,9 +109,8 @@ def get_rag_chain(session_id: str, history_text: str = "None"):
 
     chain = (
         {
-            "context":  _retrieve,
+            "context": _retrieve,
             "question": RunnablePassthrough(),
-            "history":  lambda _: history_text
         }
         | prompt
         | get_llm()
