@@ -511,6 +511,16 @@
     color: #e2e8f0;
   }
   /* ── END CODE BLOCKS ─────────────────────────────────── */
+
+  /* ── MARKDOWN RENDERING ──────────────────────────────── */
+  .md-h2 { font-size: 17px; font-weight: 700; margin: 16px 0 6px; color: var(--text); }
+  .md-h3 { font-size: 15px; font-weight: 700; margin: 12px 0 4px; color: var(--text); }
+  .md-h4 { font-size: 14px; font-weight: 600; margin: 10px 0 4px; color: var(--text-dim); }
+  .md-ul, .md-ol { margin: 4px 0 8px 20px; padding: 0; }
+  .md-ul li, .md-ol li { margin: 3px 0; line-height: 1.65; }
+  .md-p { margin: 4px 0; }
+  .md-p:empty { display: none; }
+  /* ── END MARKDOWN RENDERING ──────────────────────────── */
 </style>
 </head>
 <body>
@@ -535,7 +545,7 @@
     </div>
 
     <button class="btn btn-primary" id="upload-btn" disabled>
-      🚀 Upload & Process
+      🚀 Upload &amp; Process
     </button>
 
     <div class="upload-footer">
@@ -629,7 +639,9 @@ function goToUpload() {
     </div>`;
   document.getElementById("file-input").value = "";
   document.getElementById("file-selected").style.display = "none";
-  document.getElementById("upload-btn").disabled = true;
+  // ── FIX: reset button text and state fully ──
+  uploadBtn.disabled  = true;
+  uploadBtn.innerHTML = "🚀 Upload &amp; Process";
   showScreen("upload-screen");
 }
 
@@ -664,8 +676,8 @@ uploadBtn.addEventListener("click", async () => {
   const f = fileInput.files[0];
   if (!f) return;
 
-  uploadBtn.disabled = true;
-  uploadBtn.textContent = "Uploading...";
+  uploadBtn.disabled  = true;
+  uploadBtn.innerHTML = "⏳ Uploading...";
 
   const form = new FormData();
   form.append("file", f);
@@ -675,8 +687,8 @@ uploadBtn.addEventListener("click", async () => {
     const data = await res.json();
     if (!res.ok) {
       alert("Upload failed: " + (data.detail || res.statusText));
-      uploadBtn.disabled = false;
-      uploadBtn.textContent = "🚀 Upload & Process";
+      uploadBtn.disabled  = false;
+      uploadBtn.innerHTML = "🚀 Upload &amp; Process";
       return;
     }
     sessionId = data.session_id;
@@ -690,8 +702,8 @@ uploadBtn.addEventListener("click", async () => {
     startPolling();
   } catch (e) {
     alert("Upload error: " + e.message);
-    uploadBtn.disabled = false;
-    uploadBtn.textContent = "🚀 Upload & Process";
+    uploadBtn.disabled  = false;
+    uploadBtn.innerHTML = "🚀 Upload &amp; Process";
   }
 });
 
@@ -815,7 +827,7 @@ async function sendMessage() {
 
       buffer += decoder.decode(value, { stream: true });
       const parts = buffer.split("\n\n");
-      buffer = parts.pop(); // keep incomplete chunk
+      buffer = parts.pop();
 
       for (const part of parts) {
         if (!part.startsWith("data: ")) continue;
@@ -848,7 +860,6 @@ async function sendMessage() {
       }
     }
 
-    // safety net — if stream closed without explicit 'done'
     if (fullText && contentEl) {
       contentEl.innerHTML = renderAnswer(fullText);
       if (!chatHistory.find(m => m.content === fullText)) {
@@ -868,7 +879,7 @@ async function sendMessage() {
   }
 }
 
-// ── createStreamDiv — builds the assistant bubble for streaming ──
+// ── createStreamDiv ───────────────────────────────────────
 function createStreamDiv(sources) {
   let sourcesHtml = "";
   if (sources && sources.length > 0) {
@@ -958,6 +969,7 @@ function scrollToBottom() {
   messages.scrollTop = messages.scrollHeight;
 }
 
+// ── escapeHtml (for plain text / user messages) ───────────
 function escapeHtml(str) {
   return String(str)
     .replace(/&/g, "&amp;")
@@ -968,6 +980,68 @@ function escapeHtml(str) {
     .replace(/\n/g, "<br>");
 }
 
+// ── escapeHtmlBasic (no newline conversion — used inside markdown renderer) ──
+function escapeHtmlBasic(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+// ── inlineMd — bold, italic, inline code ─────────────────
+function inlineMd(text) {
+  return escapeHtmlBasic(text)
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g,     '<em>$1</em>')
+    .replace(/`([^`\n]+)`/g,   '<code>$1</code>');
+}
+
+// ── renderMarkdown — full line-by-line markdown ───────────
+function renderMarkdown(text) {
+  var lines  = text.split('\n');
+  var html   = '';
+  var inUl   = false;
+  var inOl   = false;
+
+  function closeList() {
+    if (inUl) { html += '</ul>'; inUl = false; }
+    if (inOl) { html += '</ol>'; inOl = false; }
+  }
+
+  lines.forEach(function(line) {
+    if (/^### /.test(line)) {
+      closeList();
+      html += '<h4 class="md-h4">' + inlineMd(line.slice(4)) + '</h4>';
+    } else if (/^## /.test(line)) {
+      closeList();
+      html += '<h3 class="md-h3">' + inlineMd(line.slice(3)) + '</h3>';
+    } else if (/^# /.test(line)) {
+      closeList();
+      html += '<h2 class="md-h2">' + inlineMd(line.slice(2)) + '</h2>';
+    } else if (/^[\*\-] /.test(line)) {
+      if (inOl) { html += '</ol>'; inOl = false; }
+      if (!inUl) { html += '<ul class="md-ul">'; inUl = true; }
+      html += '<li>' + inlineMd(line.slice(2)) + '</li>';
+    } else if (/^\d+\. /.test(line)) {
+      if (inUl) { html += '</ul>'; inUl = false; }
+      if (!inOl) { html += '<ol class="md-ol">'; inOl = true; }
+      html += '<li>' + inlineMd(line.replace(/^\d+\. /, '')) + '</li>';
+    } else if (line.trim() === '') {
+      closeList();
+      html += '<br>';
+    } else {
+      closeList();
+      html += '<p class="md-p">' + inlineMd(line) + '</p>';
+    }
+  });
+
+  closeList();
+  return html;
+}
+
+// ── renderAnswer — code fences + markdown ─────────────────
 function renderAnswer(text) {
   var TICK  = '\x60';
   var FENCE = TICK + TICK + TICK;
@@ -982,7 +1056,7 @@ function renderAnswer(text) {
   var m;
   while ((m = re.exec(text)) !== null) {
     var before = text.slice(last, m.index);
-    html += renderPlain(before);
+    html += renderMarkdown(before);
 
     var lang = m[1].trim() || 'code';
     var code = m[2].trimEnd();
@@ -990,24 +1064,20 @@ function renderAnswer(text) {
 
     html += '<div class="code-block">'
           +   '<div class="code-header">'
-          +     '<span class="code-lang">' + escapeHtml(lang) + '</span>'
+          +     '<span class="code-lang">' + escapeHtmlBasic(lang) + '</span>'
           +     '<button class="copy-btn" id="' + uid + '" onclick="copyCode(\'' + uid + '\')">Copy</button>'
           +   '</div>'
-          +   '<pre><code class="block-code" id="code-' + uid + '">' + escapeHtml(code) + '</code></pre>'
+          +   '<pre><code class="block-code" id="code-' + uid + '">' + escapeHtmlBasic(code) + '</code></pre>'
           + '</div>';
 
     last = m.index + m[0].length;
   }
 
-  html += renderPlain(text.slice(last));
+  html += renderMarkdown(text.slice(last));
   return html;
 }
 
-function renderPlain(str) {
-  var inlineRe = new RegExp('\x60([^\x60\n]+)\x60', 'g');
-  return escapeHtml(str).replace(inlineRe, '<code>$1</code>');
-}
-
+// ── copyCode ──────────────────────────────────────────────
 function copyCode(uid) {
   var code = document.getElementById('code-' + uid);
   var text = code ? code.innerText : '';
