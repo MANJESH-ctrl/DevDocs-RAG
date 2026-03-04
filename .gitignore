@@ -207,3 +207,4 @@ marimo/_lsp/
 __marimo__/
 
 RAG_docs/
+frontend/.streamlit/secrets.toml

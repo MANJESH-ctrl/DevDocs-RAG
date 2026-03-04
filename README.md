@@ -1,2 +1,9 @@
-# DevDocs-RAG
-A focused RAG pipeline that indexes developer documentation and returns context-rich answers tied to code
+---
+title: DevDocs RAG
+emoji: 🧠
+colorFrom: green
+colorTo: blue
+sdk: docker
+pinned: false
+---
+
