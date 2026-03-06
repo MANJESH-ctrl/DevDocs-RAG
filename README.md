@@ -39,28 +39,28 @@ Developer documentation is massive, scattered, and hard to navigate. Whether it'
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        INGESTION PIPELINE                        │
-│                                                                  │
+│                        INGESTION PIPELINE                       │
+│                                                                 │
 │  PDF Upload → pymupdf4llm → Semantic Chunking → BGE Embeddings  │
-│                                    ↓              ↓             │
-│                              BM25 Index     Pinecone Vector DB   │
+│                                    ↓              ↓             | 
+│                              BM25 Index     Pinecone Vector DB  |
 └─────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────┐
-│                         QUERY PIPELINE                           │
-│                                                                  │
-│  User Question → BGE Embeddings                                  │
-│                       ↓                                          │
-│             ┌─── Dense Search (Pinecone) ───┐                    │
-│             └─── Sparse Search (BM25)    ───┘                    │
-│                       ↓                                          │
-│              Reciprocal Rank Fusion                              │
-│                       ↓                                          │
-│           CrossEncoder Neural Reranking                          │
-│                       ↓                                          │
-│         Top-K Chunks → Groq LLM (LLaMA 3.1)                    │
-│                       ↓                                          │
-│            SSE Streaming → Browser                               │
+│                         QUERY PIPELINE                          │
+│                                                                 │
+│  User Question → BGE Embeddings                                 │
+│                       ↓                                         │
+│             ┌─── Dense Search (Pinecone) ───┐                   │
+│             └─── Sparse Search (BM25)    ───┘                   │
+│                       ↓                                         │
+│              Reciprocal Rank Fusion                             │
+│                       ↓                                         │
+│           CrossEncoder Neural Reranking                         │
+│                       ↓                                         │
+│         Top-K Chunks → Groq LLM (LLaMA 3.1)                     │
+│                       ↓                                         │
+│            SSE Streaming → Browser                              │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
