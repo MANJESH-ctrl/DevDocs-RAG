@@ -14,7 +14,6 @@ RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/wh
 COPY requirements.in .
 RUN pip install --no-cache-dir -r requirements.in
 
-# NLTK after pip install — nltk package now exists
 RUN python -c "\
 import nltk; \
 nltk.download('stopwords'); \
@@ -32,6 +31,12 @@ WORKDIR /app
 ENV PATH="/opt/venv/bin:$PATH"
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
+ENV TRANSFORMERS_OFFLINE=1
+ENV HF_DATASETS_OFFLINE=1
+ENV OMP_NUM_THREADS=2
+ENV MKL_NUM_THREADS=2
+ENV TOKENIZERS_PARALLELISM=false
+ENV PYTHONOPTIMIZE=1
 
 COPY --from=builder /opt/venv /opt/venv
 COPY --from=builder /root/.cache /root/.cache
@@ -40,4 +45,4 @@ COPY --from=builder /root/nltk_data /root/nltk_data
 COPY . .
 
 EXPOSE 7860
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7860"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7860", "--loop", "uvloop", "--http", "httptools"]

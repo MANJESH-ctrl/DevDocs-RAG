@@ -1,3 +1,6 @@
+import torch
+torch.set_num_threads(2)
+torch.set_num_interop_threads(1)
 import os
 from dotenv import load_dotenv
 from langchain_text_splitters import MarkdownHeaderTextSplitter, RecursiveCharacterTextSplitter

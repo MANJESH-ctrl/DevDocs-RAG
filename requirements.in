@@ -17,3 +17,5 @@ sentence-transformers
 tiktoken
 
 pymupdf4llm
+uvloop
+httptools
