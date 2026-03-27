@@ -13,7 +13,7 @@ pinned: false
 
 ### Ask anything about your developer documentation. Get precise, cited answers — instantly.
 
-[![HuggingFace Space](https://img.shields.io/badge/🤗%20Live%20Demo-HuggingFace%20Spaces-FFD21E?style=for-the-badge)](https://retardyadav-dev-docs-rag-app.hf.space/)
+[![HuggingFace Space](https://img.shields.io/badge/🤗%20Live%20Demo-HuggingFace%20Spaces-FFD21E?style=for-the-badge)](https://huggingface.co/spaces/retardyadav/dev-docs-rag-app)
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docker.com)
@@ -48,28 +48,28 @@ Developer documentation is massive, scattered, and hard to navigate. Whether it'
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        INGESTION PIPELINE                       │
-│                                                                 │
+│                        INGESTION PIPELINE                        │
+│                                                                  │
 │  PDF Upload → pymupdf4llm → Semantic Chunking → BGE Embeddings  │
-│                                    ↓              ↓             | 
-│                              BM25 Index     Pinecone Vector DB  |
+│                                    ↓              ↓             │
+│                              BM25 Index     Pinecone Vector DB   │
 └─────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────┐
-│                         QUERY PIPELINE                          │
-│                                                                 │
-│  User Question → BGE Embeddings                                 │
-│                       ↓                                         │
-│             ┌─── Dense Search (Pinecone) ───┐                   │
-│             └─── Sparse Search (BM25)    ───┘                   │
-│                       ↓                                         │
-│              Reciprocal Rank Fusion                             │
-│                       ↓                                         │
-│           CrossEncoder Neural Reranking                         │
-│                       ↓                                         │
-│         Top-K Chunks → Groq LLM (LLaMA 3.1)                     │
-│                       ↓                                         │
-│            SSE Streaming → Browser                              │
+│                         QUERY PIPELINE                           │
+│                                                                  │
+│  User Question → BGE Embeddings                                  │
+│                       ↓                                          │
+│             ┌─── Dense Search (Pinecone) ───┐                    │
+│             └─── Sparse Search (BM25)    ───┘                    │
+│                       ↓                                          │
+│              Hybrid Score Fusion                                 │
+│                       ↓                                          │
+│           CrossEncoder Neural Reranking                          │
+│                       ↓                                          │
+│         Top-K Chunks → Groq LLM (LLaMA 3.1)                    │
+│                       ↓                                          │
+│            SSE Streaming → Browser                               │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -82,41 +82,48 @@ Developer documentation is massive, scattered, and hard to navigate. Whether it'
 | **Backend** | FastAPI + Uvicorn | Async REST API & SSE streaming |
 | **PDF Parsing** | pymupdf4llm | Markdown-aware PDF extraction |
 | **Embeddings** | `BAAI/bge-small-en-v1.5` | Dense semantic vector representations |
-| **Sparse Retrieval** | BM25 (rank_bm25) | Keyword-aware lexical search |
+| **Sparse Retrieval** | BM25 (pinecone-text) | Keyword-aware lexical search |
 | **Vector Database** | Pinecone | Scalable ANN vector search |
 | **Reranker** | `cross-encoder/ms-marco-MiniLM-L-6-v2` | Neural passage reranking |
 | **LLM** | Groq · LLaMA 3.1 8B Instant | Ultra-fast answer generation |
 | **Streaming** | Server-Sent Events (SSE) | Real-time token streaming |
-| **NLP Utilities** | NLTK | Tokenization & text preprocessing |
 | **Frontend** | Vanilla JS + CSS | Zero-dependency chat UI |
 | **Containerization** | Docker (multi-stage build) | Reproducible deployment |
 | **Deployment** | HuggingFace Spaces | Free cloud hosting with 16GB RAM |
 
 ---
 
-## 🔬 RAG Pipeline — Deep Dive
+## 📊 Evaluation Results
 
-### 1. Ingestion
-- PDF is parsed using **pymupdf4llm** which preserves markdown structure (headers, lists, tables) rather than raw text dumps
-- Document is split into semantically meaningful chunks with configurable overlap
-- Each chunk is embedded using **BAAI/bge-small-en-v1.5** — a top-ranked MTEB model optimized for retrieval
-- Embeddings stored in **Pinecone** with metadata (source, section, page)
-- Parallel **BM25 index** built for sparse keyword retrieval and persisted to disk
+The pipeline was evaluated using a **custom LLM-as-Judge framework** — prompt-engineered scoring rubrics powered by Groq (LLaMA 3.1 8B), evaluating 4 core RAG metrics on a synthetic test set generated from the TensorFlow User Guide.
 
-### 2. Hybrid Retrieval
-- Query is embedded with the same BGE model for dense search
-- Simultaneously, BM25 scores the query against all indexed chunks
-- Results from both retrievers are merged using **Reciprocal Rank Fusion (RRF)** — a parameter-free rank merging algorithm that consistently outperforms score-based fusion
+> No off-the-shelf eval library was used — the evaluator was built from scratch for stability and control.
 
-### 3. Neural Reranking
-- Fused candidates are passed through **cross-encoder/ms-marco-MiniLM-L-6-v2**
-- Unlike bi-encoders, CrossEncoders perform full attention across query+passage pairs for precise relevance scoring
-- Top-K results selected after reranking for final context assembly
+### Scores (TensorFlow User Guide · 9 samples)
 
-### 4. Generation & Streaming
-- Curated context + conversation history sent to **Groq's LLaMA 3.1 8B Instant**
-- Response streamed token-by-token via **SSE** to the browser
-- Frontend renders markdown in real-time as tokens arrive
+| Metric | Score | Rating |
+|--------|-------|--------|
+| 🔍 **Faithfulness** | 0.82 | ✅ Excellent |
+| 🎯 **Context Precision** | 0.59 | 🟠 Fair |
+| 📚 **Context Recall** | 0.80 | ✅ Excellent |
+| ✅ **Answer Correctness** | 0.81 | ✅ Excellent |
+| 🏆 **Overall** | **0.75** | 🟡 Good |
+
+### What Each Metric Means
+
+| Metric | What It Measures |
+|--------|-----------------|
+| **Faithfulness** | Is the answer grounded in retrieved context? (hallucination detection) |
+| **Context Precision** | Are retrieved chunks relevant to the question? |
+| **Context Recall** | Does the context cover all information needed? |
+| **Answer Correctness** | Does the answer match the ground-truth reference? |
+
+### Key Takeaways
+
+- **Faithfulness 0.82** — The LLM rarely hallucinates; answers stay grounded in the document
+- **Context Recall 0.80** — Hybrid retrieval (dense + BM25) successfully captures most relevant chunks
+- **Answer Correctness 0.81** — Answers are factually accurate against ground truth
+- **Context Precision 0.59** — Some loosely related chunks slip through; tuning the score threshold is the next improvement
 
 ---
 
@@ -131,7 +138,7 @@ Developer documentation is massive, scattered, and hard to navigate. Whether it'
 
 ```bash
 # Clone
-git clone https://github.com/YOUR_USERNAME/DevDocs-RAG.git
+git clone https://github.com/MANJESH-ctrl/DevDocs-RAG.git
 cd DevDocs-RAG
 
 # Configure environment
@@ -153,7 +160,6 @@ INDEX_NAME=your_index_name
 CLOUD_REGION=us-east-1
 GROQ_API_KEY=your_groq_key
 LLM_MODEL=llama-3.1-8b-instant
-EMBEDDING_MODEL=BAAI/bge-small-en-v1.5
 ```
 
 ---
@@ -166,36 +172,6 @@ EMBEDDING_MODEL=BAAI/bge-small-en-v1.5
 | `GET /status/{session_id}` | GET | Poll ingestion progress |
 | `POST /chat/{session_id}` | POST | Send question, returns SSE stream |
 
-### Chat Request
-```json
-{
-  "question": "What are the key parameters of numpy.einsum?",
-  "history": [
-    { "role": "user", "content": "..." },
-    { "role": "assistant", "content": "..." }
-  ]
-}
-```
-
-### SSE Stream Events
-```
-data: {"type": "sources", "sources": [...]}
-data: {"type": "token",   "content": "The "}
-data: {"type": "token",   "content": "einsum "}
-data: {"type": "done"}
-```
-
----
-
-## 🐳 Docker — Multi-Stage Build
-
-The Dockerfile uses a **two-stage build** to keep the runtime image lean:
-
-- **Builder stage** — installs `build-essential`, compiles all packages, downloads and warms up both ML models
-- **Runtime stage** — copies only the venv and cached models, no build tools, minimal attack surface
-
-Models are **baked into the image at build time** via `warmup_models.py` — zero cold-start latency on first request.
-
 ---
 
 ## 📁 Project Structure
@@ -203,15 +179,23 @@ Models are **baked into the image at build time** via `warmup_models.py` — zer
 ```
 DevDocs-RAG/
 ├── main.py              # FastAPI app, routes, SSE streaming
-├── ingestion.py         # PDF parsing, chunking, embedding, indexing
-├── query.py             # Hybrid retrieval, reranking, LLM generation
-├── config.py            # Environment config & model initialization
-├── warmup_models.py     # Pre-loads models at Docker build time
+├── app/
+│   ├── config.py        # Environment config & model initialization
+│   ├── ingestion.py     # PDF parsing, chunking, embedding, indexing
+│   ├── query.py         # Hybrid retrieval, reranking, LLM generation
+│   └── warmup_models.py # Pre-loads models at Docker build time
+├── evaluation/
+│   ├── config.py        # Evaluator config
+│   ├── run_evaluation.py        # End-to-end evaluation (4 metrics)
+│   ├── evaluate_retrieval.py    # Retrieval-only evaluation
+│   ├── generate_testset.py      # Synthetic QA generator from PDFs
+│   └── results/         # Saved evaluation reports
 ├── static/
 │   └── index.html       # Full chat UI (zero dependencies)
+├── RAG_docs/            # Place your PDFs here
 ├── Dockerfile           # Multi-stage Docker build
 ├── requirements.in      # Python dependencies
-└── README.md
+└── .env.example         # Environment variable template
 ```
 
 ---
@@ -221,7 +205,6 @@ DevDocs-RAG/
 Deployed on **HuggingFace Spaces** (Docker SDK):
 - ✅ 16GB RAM free tier — enough for both ML models with headroom
 - ✅ Public spaces never sleep — no cold starts
-- ✅ HuggingFace model hub on same network — instant model downloads at build time
 - ✅ Zero cost, zero credit card
 
 **Live:** https://huggingface.co/spaces/retardyadav/dev-docs-rag-app
@@ -232,28 +215,12 @@ Deployed on **HuggingFace Spaces** (Docker SDK):
 
 | Document | Pages | Result |
 |---|---|---|
+| TensorFlow User Guide | 300+ | ✅ |
 | NumPy User Guide | 500+ | ✅ |
 | MLflow Documentation | 200+ | ✅ |
-| TensorFlow User Guide | 300+ | ✅ |
 | spaCy Tutorial | 150+ | ✅ |
 | LightGBM Docs | 100+ | ✅ |
 | LangChain + Ollama Guide | 80+ | ✅ |
-
----
-
-## 🔮 Roadmap
-
-- [ ] Multi-document sessions (query across multiple PDFs simultaneously)
-- [ ] URL ingestion (scrape and index documentation websites)
-- [ ] Persistent sessions with database backend
-- [ ] Syntax highlighting via highlight.js
-- [ ] Export conversation as PDF/Markdown
-
----
-
-## 🤝 Contributing
-
-Pull requests welcome. For major changes, open an issue first to discuss what you'd like to change.
 
 ---
 
