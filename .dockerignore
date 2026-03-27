@@ -5,3 +5,4 @@ __pycache__/
 .git
 uploads/
 bm25_params.json
+README.md

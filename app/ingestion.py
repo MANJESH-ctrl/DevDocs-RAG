@@ -11,7 +11,7 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from pinecone import Pinecone, ServerlessSpec
 from pinecone_text.sparse import BM25Encoder
 
-from config import (
+from app.config import (
     PINECONE_API_KEY, INDEX_NAME, CLOUD_REGION, EMBEDDING_MODEL,
     CHUNK_SIZE, BATCH_SIZE,
     MD_SPLITTER, ENCODING, TOKEN_SPLITTER,

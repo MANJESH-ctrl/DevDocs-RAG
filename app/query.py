@@ -7,8 +7,8 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from sentence_transformers import CrossEncoder
 
-from config import GROQ_API_KEY, LLM_MODEL, TOP_K, FINAL_K
-from ingestion import get_embeddings, get_index, get_bm25_for_session
+from app.config import GROQ_API_KEY, LLM_MODEL, TOP_K, FINAL_K
+from app.ingestion import get_embeddings, get_index, get_bm25_for_session
 
 _llm      = None
 _reranker = None
@@ -53,7 +53,7 @@ def hybrid_retriever(
 
     docs: List[Document] = []
     for match in result["matches"]:
-        if match["score"] < 0.2:
+        if match["score"] < 0.35:
             continue
         meta = dict(match["metadata"])
         text = meta.pop("text", "")

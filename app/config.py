@@ -15,7 +15,7 @@ EMBEDDING_MODEL  = "BAAI/bge-small-en-v1.5"
 GROQ_API_KEY     = os.getenv("GROQ_API_KEY")
 LLM_MODEL        = os.getenv("LLM_MODEL", "llama-3.1-8b-instant")
 
-BASE_DIR   = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR   = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 UPLOAD_DIR = os.path.join(BASE_DIR, "uploads")
 STATIC_DIR = os.path.join(BASE_DIR, "static")
 os.makedirs(UPLOAD_DIR, exist_ok=True)

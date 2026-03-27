@@ -1,0 +1,81 @@
+{
+  "metadata": {
+    "evaluated_at": "2026-03-27T17:04:59.325792",
+    "testset": "evaluation/testsets/testset_TensorFlow-User-Guide_20260323_141246.json",
+    "session_id": "ef639348-a83c-4fc9-bb85-7e5713b61cf8",
+    "evaluator_model": "llama-3.1-8b-instant",
+    "num_samples": 9,
+    "method": "LLM-as-Judge (Groq, no RAGAS)"
+  },
+  "aggregate_scores": {
+    "faithfulness": 0.8222,
+    "context_precision": 0.5889,
+    "context_recall": 0.8,
+    "answer_correctness": 0.8056
+  },
+  "per_question_scores": [
+    {
+      "question": "What is the version of the user guide?",
+      "faithfulness": 0.9,
+      "context_precision": 0.5,
+      "context_recall": 0.8,
+      "answer_correctness": 0.8
+    },
+    {
+      "question": "How would you explain the purpose of the user guide?",
+      "faithfulness": 0.8,
+      "context_precision": 0.0,
+      "context_recall": 0.8,
+      "answer_correctness": 0.8
+    },
+    {
+      "question": "What is the significance of the version number '2.5.0' in the user guide?",
+      "faithfulness": 0.8,
+      "context_precision": 0.8,
+      "context_recall": 0.8,
+      "answer_correctness": 0.8
+    },
+    {
+      "question": "What is the purpose of the _CUDA_DEVICE_MAX_CONNECTIONS_ variable?",
+      "faithfulness": 1.0,
+      "context_precision": 0.5,
+      "context_recall": 0.8,
+      "answer_correctness": 0.8
+    },
+    {
+      "question": "How does setting the _CUDA_DEVICE_MAX_CONNECTIONS_ variable to its default setting affect performance?",
+      "faithfulness": 0.5,
+      "context_precision": 0.5,
+      "context_recall": 0.8,
+      "answer_correctness": 0.6
+    },
+    {
+      "question": "What is the default value of the _CUDA_DEVICE_MAX_CONNECTIONS_ variable?",
+      "faithfulness": 0.8,
+      "context_precision": 0.5,
+      "context_recall": 0.8,
+      "answer_correctness": 0.9
+    },
+    {
+      "question": "How can XLA be enabled in TensorFlow?",
+      "faithfulness": 0.8,
+      "context_precision": 0.9,
+      "context_recall": 0.8,
+      "answer_correctness": 0.8
+    },
+    {
+      "question": "What are the implications of using jit_scope to control XLA optimization?",
+      "faithfulness": 0.8,
+      "context_precision": 0.8,
+      "context_recall": 0.8,
+      "answer_correctness": 0.8
+    },
+    {
+      "question": "How can I disable XLA for a model that has been enabled through the session config?",
+      "faithfulness": 1.0,
+      "context_precision": 0.8,
+      "context_recall": 0.8,
+      "answer_correctness": 0.95
+    }
+  ]
+}

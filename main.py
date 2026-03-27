@@ -10,9 +10,9 @@ from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from config import UPLOAD_DIR, STATIC_DIR
-from ingestion import ingest_document, get_embeddings, get_index
-from query import get_reranker, stream_rag_response
+from app.config import UPLOAD_DIR, STATIC_DIR
+from app.ingestion import ingest_document, get_embeddings, get_index
+from app.query import get_reranker, stream_rag_response
 
 app = FastAPI(title="DEV-DOCS RAG")
 
@@ -61,7 +61,7 @@ def health():
 
 @app.post("/upload")
 async def upload_file(file: UploadFile, background_tasks: BackgroundTasks):
-    if not file.filename.lower().endswith(".pdf"):
+    if not file.filename or not file.filename.lower().endswith(".pdf"):
         raise HTTPException(400, "Only PDF files are supported.")
 
     session_id = str(uuid4())

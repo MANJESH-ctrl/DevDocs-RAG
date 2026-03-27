@@ -1,0 +1,145 @@
+{
+  "metadata": {
+    "generated_at": "2026-03-23T14:12:46.649505",
+    "total_samples": 9,
+    "generator": "DevDocs-RAG Evaluation Suite",
+    "evaluator_model": "llama-3.1-8b-instant"
+  },
+  "samples": [
+    {
+      "user_input": "What is the version of the user guide?",
+      "expected_output": "The version of the user guide is DU-08601-001_v1.15.5, 2.5.0, and it was last updated in December 2025.",
+      "reference_contexts": [
+        "## User Guide  \nDU-08601-001_v1.15.5, 2.5.0    |    December 2025"
+      ],
+      "metadata": {
+        "source_file": "TensorFlow-User-Guide.pdf",
+        "question_type": "SIMPLE",
+        "chunk_index": 0,
+        "headers": {
+          "Header 2": "User Guide"
+        }
+      }
+    },
+    {
+      "user_input": "How would you explain the purpose of the user guide?",
+      "expected_output": "The user guide is intended to provide developers with the necessary information to understand and utilize the system's features. It is designed to be a comprehensive resource that covers various aspects of the system, including setup, configuration, and troubleshooting. By following the guidelines and instructions provided in the user guide, developers can ensure a smooth and efficient experience with the system.",
+      "reference_contexts": [
+        "## User Guide  \nDU-08601-001_v1.15.5, 2.5.0    |    December 2025"
+      ],
+      "metadata": {
+        "source_file": "TensorFlow-User-Guide.pdf",
+        "question_type": "REASONING",
+        "chunk_index": 0,
+        "headers": {
+          "Header 2": "User Guide"
+        }
+      }
+    },
+    {
+      "user_input": "What is the significance of the version number '2.5.0' in the user guide?",
+      "expected_output": "The version number '2.5.0' likely refers to the version of the system or software being documented in the user guide. This version number may indicate a specific release or iteration of the system, and it may be used to track changes, updates, or bug fixes. In this context, the version number '2.5.0' is likely used to provide a clear and concise identifier for the system's current state.",
+      "reference_contexts": [
+        "## User Guide  \nDU-08601-001_v1.15.5, 2.5.0    |    December 2025"
+      ],
+      "metadata": {
+        "source_file": "TensorFlow-User-Guide.pdf",
+        "question_type": "SPECIFIC",
+        "chunk_index": 0,
+        "headers": {
+          "Header 2": "User Guide"
+        }
+      }
+    },
+    {
+      "user_input": "What is the purpose of the _CUDA_DEVICE_MAX_CONNECTIONS_ variable?",
+      "expected_output": "The _CUDA_DEVICE_MAX_CONNECTIONS_ variable solves performance issues related to streams on Tesla K80 GPUs. This suggests that the variable is used to optimize the performance of the GPU by managing connections or streams effectively.",
+      "reference_contexts": [
+        "## 7.1.5. _CUDA_DEVICE_MAX_CONNECTIONS_  \nThe _CUDA_DEVICE_MAX_CONNECTIONS_ variable solves performance issues related to streams on Tesla K80 GPUs.  \nWithin the container, this variable is set to the following:  \nexport CUDA_DEVICE_MAX_CONNECTIONS=12  \nTo set this variable to its default setting, run the following command:  \nexport CUDA_DEVICE_MAX_CONNECTIONS=8"
+      ],
+      "metadata": {
+        "source_file": "TensorFlow-User-Guide.pdf",
+        "question_type": "SIMPLE",
+        "chunk_index": 36,
+        "headers": {
+          "Header 2": "7.1.5. _CUDA_DEVICE_MAX_CONNECTIONS_"
+        }
+      }
+    },
+    {
+      "user_input": "How does setting the _CUDA_DEVICE_MAX_CONNECTIONS_ variable to its default setting affect performance?",
+      "expected_output": "Setting the _CUDA_DEVICE_MAX_CONNECTIONS_ variable to its default setting, which is 8, may resolve performance issues related to streams on Tesla K80 GPUs. This is because the default setting is likely the recommended value for optimal performance on this specific GPU model. However, it's worth noting that setting it to 12 may also be beneficial for certain use cases, depending on the specific requirements of the application.",
+      "reference_contexts": [
+        "## 7.1.5. _CUDA_DEVICE_MAX_CONNECTIONS_  \nThe _CUDA_DEVICE_MAX_CONNECTIONS_ variable solves performance issues related to streams on Tesla K80 GPUs.  \nWithin the container, this variable is set to the following:  \nexport CUDA_DEVICE_MAX_CONNECTIONS=12  \nTo set this variable to its default setting, run the following command:  \nexport CUDA_DEVICE_MAX_CONNECTIONS=8"
+      ],
+      "metadata": {
+        "source_file": "TensorFlow-User-Guide.pdf",
+        "question_type": "REASONING",
+        "chunk_index": 36,
+        "headers": {
+          "Header 2": "7.1.5. _CUDA_DEVICE_MAX_CONNECTIONS_"
+        }
+      }
+    },
+    {
+      "user_input": "What is the default value of the _CUDA_DEVICE_MAX_CONNECTIONS_ variable?",
+      "expected_output": "The default value of the _CUDA_DEVICE_MAX_CONNECTIONS_ variable is 8. To set this value, you can run the command `export CUDA_DEVICE_MAX_CONNECTIONS=8` within the container. This sets the variable to its default setting, which may help resolve performance issues related to streams on Tesla K80 GPUs.",
+      "reference_contexts": [
+        "## 7.1.5. _CUDA_DEVICE_MAX_CONNECTIONS_  \nThe _CUDA_DEVICE_MAX_CONNECTIONS_ variable solves performance issues related to streams on Tesla K80 GPUs.  \nWithin the container, this variable is set to the following:  \nexport CUDA_DEVICE_MAX_CONNECTIONS=12  \nTo set this variable to its default setting, run the following command:  \nexport CUDA_DEVICE_MAX_CONNECTIONS=8"
+      ],
+      "metadata": {
+        "source_file": "TensorFlow-User-Guide.pdf",
+        "question_type": "SPECIFIC",
+        "chunk_index": 36,
+        "headers": {
+          "Header 2": "7.1.5. _CUDA_DEVICE_MAX_CONNECTIONS_"
+        }
+      }
+    },
+    {
+      "user_input": "How can XLA be enabled in TensorFlow?",
+      "expected_output": "XLA can be enabled in a few ways: Opt in for specific parts of the model, referred to as manual clustering, or opt in at the source level. This can be done by using tf.function, jit_scope, or by setting the global_jit_level or setting_jit to True. Additionally, users can opt in through environment variables, such as TF_XLA_FLAGS.",
+      "reference_contexts": [
+        "## 9.1.2. Enabling XLA  \nXLA can be enabled in a few ways:  \n- **‣** Opt in for specific parts of the model, referred to as manual clustering.  \ntf.function is one way for users to control which parts of a model to optimize with XLA. See here for TF1.X, and here for TF2.X how to use a tf.function.  \nAlternatively, a so-called _jit_scope_ can be used to control which parts of a model to optimize with XLA. See here for TF1.X, and here for TF2.X how to use a jit_scope. Be advised that this is merely a hint, as unsupported nodes are not compiled.  \nMake TensorFlow decide which parts of the model to optimize, referred to as auto clustering.  \n- **‣** Opt in at the source level.  \nFor TF 1.X, users can opt in to auto clustering at the session level by adding the following line of code to change the session configuration argument:  \nconfig.graph_options.optimizer_options.global_jit_level =  \ntf.OptimizerOptions.ON_1  \nTensorFlow  \nDU-08601-001_v1.15.5, 2.5.0   |   24  \nXLA Best Practices  \nFor TF 2.X, users can opt in to auto clustering at the global level by adding the following line of code at the beginning of the script:  \ntf.config.optimizer.set_jit(True)  \n- **‣** Opt in through environment variable.  \nUsers can opt into auto clustering, where TensorFlow decides which nodes go to XLA, without any source code changes by setting the following environment variable:  \nTF_XLA_FLAGS=--tf_xla_auto_jit=1  \nThis environment variable works for both TF 1.X, and TF 2.X. For models that have XLA enabled through the session config, XLA can be disabled with:  \nTF_XLA_FLAGS=--tf_xla_auto_jit=-1  \nThe environment variable takes precedence over the global_jit_level and the jit_scope, but not over tf.function. This document focuses primarily on auto clustering. Most of it applies to manual clustering as well."
+      ],
+      "metadata": {
+        "source_file": "TensorFlow-User-Guide.pdf",
+        "question_type": "SIMPLE",
+        "chunk_index": 72,
+        "headers": {
+          "Header 2": "9.1.2. Enabling XLA"
+        }
+      }
+    },
+    {
+      "user_input": "What are the implications of using jit_scope to control XLA optimization?",
+      "expected_output": "Using jit_scope is merely a hint to TensorFlow, and unsupported nodes will not be compiled. This means that the user should be aware of the potential limitations and ensure that the model is compatible with XLA optimization before using jit_scope. It is also worth noting that jit_scope takes precedence over the global_jit_level, but not over tf.function.",
+      "reference_contexts": [
+        "## 9.1.2. Enabling XLA  \nXLA can be enabled in a few ways:  \n- **‣** Opt in for specific parts of the model, referred to as manual clustering.  \ntf.function is one way for users to control which parts of a model to optimize with XLA. See here for TF1.X, and here for TF2.X how to use a tf.function.  \nAlternatively, a so-called _jit_scope_ can be used to control which parts of a model to optimize with XLA. See here for TF1.X, and here for TF2.X how to use a jit_scope. Be advised that this is merely a hint, as unsupported nodes are not compiled.  \nMake TensorFlow decide which parts of the model to optimize, referred to as auto clustering.  \n- **‣** Opt in at the source level.  \nFor TF 1.X, users can opt in to auto clustering at the session level by adding the following line of code to change the session configuration argument:  \nconfig.graph_options.optimizer_options.global_jit_level =  \ntf.OptimizerOptions.ON_1  \nTensorFlow  \nDU-08601-001_v1.15.5, 2.5.0   |   24  \nXLA Best Practices  \nFor TF 2.X, users can opt in to auto clustering at the global level by adding the following line of code at the beginning of the script:  \ntf.config.optimizer.set_jit(True)  \n- **‣** Opt in through environment variable.  \nUsers can opt into auto clustering, where TensorFlow decides which nodes go to XLA, without any source code changes by setting the following environment variable:  \nTF_XLA_FLAGS=--tf_xla_auto_jit=1  \nThis environment variable works for both TF 1.X, and TF 2.X. For models that have XLA enabled through the session config, XLA can be disabled with:  \nTF_XLA_FLAGS=--tf_xla_auto_jit=-1  \nThe environment variable takes precedence over the global_jit_level and the jit_scope, but not over tf.function. This document focuses primarily on auto clustering. Most of it applies to manual clustering as well."
+      ],
+      "metadata": {
+        "source_file": "TensorFlow-User-Guide.pdf",
+        "question_type": "REASONING",
+        "chunk_index": 72,
+        "headers": {
+          "Header 2": "9.1.2. Enabling XLA"
+        }
+      }
+    },
+    {
+      "user_input": "How can I disable XLA for a model that has been enabled through the session config?",
+      "expected_output": "To disable XLA for a model that has been enabled through the session config, you can set the environment variable TF_XLA_FLAGS to --tf_xla_auto_jit=-1. This will take precedence over the global_jit_level and jit_scope, but not over tf.function.",
+      "reference_contexts": [
+        "## 9.1.2. Enabling XLA  \nXLA can be enabled in a few ways:  \n- **‣** Opt in for specific parts of the model, referred to as manual clustering.  \ntf.function is one way for users to control which parts of a model to optimize with XLA. See here for TF1.X, and here for TF2.X how to use a tf.function.  \nAlternatively, a so-called _jit_scope_ can be used to control which parts of a model to optimize with XLA. See here for TF1.X, and here for TF2.X how to use a jit_scope. Be advised that this is merely a hint, as unsupported nodes are not compiled.  \nMake TensorFlow decide which parts of the model to optimize, referred to as auto clustering.  \n- **‣** Opt in at the source level.  \nFor TF 1.X, users can opt in to auto clustering at the session level by adding the following line of code to change the session configuration argument:  \nconfig.graph_options.optimizer_options.global_jit_level =  \ntf.OptimizerOptions.ON_1  \nTensorFlow  \nDU-08601-001_v1.15.5, 2.5.0   |   24  \nXLA Best Practices  \nFor TF 2.X, users can opt in to auto clustering at the global level by adding the following line of code at the beginning of the script:  \ntf.config.optimizer.set_jit(True)  \n- **‣** Opt in through environment variable.  \nUsers can opt into auto clustering, where TensorFlow decides which nodes go to XLA, without any source code changes by setting the following environment variable:  \nTF_XLA_FLAGS=--tf_xla_auto_jit=1  \nThis environment variable works for both TF 1.X, and TF 2.X. For models that have XLA enabled through the session config, XLA can be disabled with:  \nTF_XLA_FLAGS=--tf_xla_auto_jit=-1  \nThe environment variable takes precedence over the global_jit_level and the jit_scope, but not over tf.function. This document focuses primarily on auto clustering. Most of it applies to manual clustering as well."
+      ],
+      "metadata": {
+        "source_file": "TensorFlow-User-Guide.pdf",
+        "question_type": "SPECIFIC",
+        "chunk_index": 72,
+        "headers": {
+          "Header 2": "9.1.2. Enabling XLA"
+        }
+      }
+    }
+  ]
+}
