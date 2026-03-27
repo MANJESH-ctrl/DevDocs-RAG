@@ -239,7 +239,7 @@ Deployed on **HuggingFace Spaces** (Docker SDK):
 - ✅ HuggingFace model hub on same network — instant model downloads at build time
 - ✅ Zero cost, zero credit card
 
-**Live:** https://huggingface.co/spaces/retardyadav/dev-docs-rag-app
+**Live:** https://retardyadav-dev-docs-rag-app.hf.space/
 
 ---
 
